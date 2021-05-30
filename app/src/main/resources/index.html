@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MNIST</title>
+</head>
+<body>
+  <p>Clear : Right click</p>
+  <canvas id="canvas" width="112" height="112" style="border: solid 1px #000;"></canvas>
+  <p id="msg"></p>
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'rgb(255, 255, 255)';
+    ctx.lineCap = 'round';
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    var clicked = false;
+    canvas.addEventListener('mousedown', e => {
+        if (event.which !== 1) return;
+        clicked = true;
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mouseup', e => {
+        if (event.which !== 1) return;
+        clicked = false;
+        let data = canvas.toDataURL("image/png");
+        fetch("post", {
+            method: "POST",
+            body: JSON.stringify(data)
+        })
+        .then(res => res.text())
+        .then(text => document.getElementById('msg').innerText = text);
+    });
+
+    canvas.addEventListener('mousemove', e => {
+        if (!clicked) return false;
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+    });
+
+    canvas.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        return false;
+    });
+
+  </script>
+</body>
+</html>
